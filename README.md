@@ -1,6 +1,8 @@
 # matchDcmContour
-The objective of this project is to prepare the dicom images and matching contours for training a convolutional neural network. 
+The objective of this project is to prepare the dicom images and matching contours for training a convolutional neural network.
+
 Added matchImgCont.py:
+
 \1) overlayImg(dcmImg,mask,alpha=0.7): fuses the dicom grayscale and boolean masks
 \2) createContMask(contFname,imSize): creates a boolean mask from the contour file and image size
 \3) getNumFromDcmFname(dcmFname) & getNumFromContFname(contFname): these are functions to extract the image number from the filenames. I separated this as a function as it'll be easier to modify in the format of filename changes in the future
