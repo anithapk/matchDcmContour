@@ -43,7 +43,22 @@ def getNumFromContFname(contFname):
     #---output: get the image number from the filename
     return int(os.path.split(contFname)[1].split('-')[2])
 
-def genTrainPair(dcmDir,conDir,opFname):
+def writeCSV(listVal,fName):
+    #---input: listVal - variable to be written as csv file, fName of the csv file
+    try:
+        f = open(fName,'w')
+    except IOError:
+        print('cannot open file for writing dcm,cont fname pair')
+        sys.exit(1)
+    else:
+        with f:
+            writer = csv.writer(f, delimiter=',')
+            for i in range(len(listVal)):
+               writer.writerow(listVal[i])
+            f.close()
+    return
+
+def genTrainPair(dcmDir,conDir,opFname,getNumFromDcmFname=getNumFromDcmFname,getNumFromContFname=getNumFromContFname):
     #---input: dicom filename including the full path,
     #---conDir: filename of the contour file including the full path,
     #---output: csv filename for writing dicom and contour pairs including the full path
@@ -52,19 +67,12 @@ def genTrainPair(dcmDir,conDir,opFname):
     imgNum = [getNumFromDcmFname(i) for i in imgFnames]
     imgNum = np.array(imgNum)
     imgPath = {imgNum[i]:imgFnames[i] for i in range(len(imgNum))}
-    try:
-        f = open(opFname,'w')
-    except IOError:
-        print('cannot open file for writing dcm,cont fname pair')
-        sys.exit(1)
-    else:
-        with f:
-            writer = csv.writer(f, delimiter=',')
-            for n,i in enumerate(conFnames):
-                curContNum = getNumFromContFname(i)
-                # pull the corresponding image 
-                writer.writerow([imgPath[curContNum],i])
-            f.close()
+    trainpair = []
+    for n,i in enumerate(conFnames):
+       curContNum = getNumFromContFname(i)
+       # pull the corresponding image
+       trainpair.append([imgPath[curContNum],i])
+    writeCSV(trainpair,opFname)
     return
 
 def chkMask(dcmDir,conDir,opBaseDir):
@@ -96,7 +104,6 @@ def chkMask(dcmDir,conDir,opBaseDir):
             print("cannot create directory for saving overlay images")
             sys.exit(1)
     plt.figure(figsize=(10,16))
-    plt.suptitle(conDir)
     n=0
     for i in range(len(pairCSV)):
         curImg = parse_dicom_file(pairCSV[i][0])
