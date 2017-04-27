@@ -17,3 +17,4 @@ Added matchImgCont.py:
 
 matchDcmCont.ipynb: notebook for exploration and visualization of the fused images
 
+matchImgCont.py: python script that loops through pairs in link.csv given a base directory. Assumes a directory structure
