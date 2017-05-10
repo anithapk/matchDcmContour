@@ -54,7 +54,7 @@ def writeCSV(listVal,fName):
         with f:
             writer = csv.writer(f, delimiter=',')
             for i in range(len(listVal)):
-               writer.writerow(listVal[i])
+                writer.writerow(listVal[i])
             f.close()
     return
 
@@ -69,19 +69,19 @@ def genTrainPair(dcmDir,conDir,opFname,getNumFromDcmFname=getNumFromDcmFname,get
     imgPath = {imgNum[i]:imgFnames[i] for i in range(len(imgNum))}
     trainpair = []
     for n,i in enumerate(conFnames):
-       curContNum = getNumFromContFname(i)
-       # pull the corresponding image
-       trainpair.append([imgPath[curContNum],i])
+        curContNum = getNumFromContFname(i)
+        # pull the corresponding image
+        trainpair.append([imgPath[curContNum],i])
     writeCSV(trainpair,opFname)
     return
 
-def chkMask(dcmDir,conDir,opBaseDir):
+def chkMask(dcmDir,conDir,opBaseDir,pairCSVFname):
     #---input: dicom filename including the full path,
     #---conDir: filename of the contour file including the full path,
     #---opBaseDir: base directory where the fused images are saved
     try:
-        pairCSV = np.genfromtxt(os.path.join(opBaseDir,'imgContPair.csv'), delimiter=',', 
-                                usecols=(0,1), dtype=str,skip_header=True)
+        pairCSV = np.genfromtxt(os.path.join(opBaseDir,pairCSVFname), delimiter=',', 
+                                usecols=(0,1), dtype=str)
     except IOError:
         print("Unable to find/open imgContPair.csv")
         sys.exit(1)
@@ -106,6 +106,7 @@ def chkMask(dcmDir,conDir,opBaseDir):
     plt.figure(figsize=(10,16))
     n=0
     for i in range(len(pairCSV)):
+        plt.suptitle(pairCSV[i][0].split('/')[7])
         curImg = parse_dicom_file(pairCSV[i][0])
         contMask = createContMask(pairCSV[i][1],curImg['pixel_data'].shape)
         overImg = overlayImg(curImg,contMask)
@@ -171,3 +172,29 @@ class readTrainPair:
                 print("unknown dimension for concatenating images")
             self.current += self.batchSize
         return imgArray,contArray
+    
+def getMatchCont(icontCSV,ocontCSV):
+    #---icontCSV - fname for points in i-contour, ocontCSV - fname for points in o-contour
+    #---output- a list with 4 values: imgNum, image fname, i-contour fname, o-contour fname
+    iNum = [getNumFromContFname(val[1]) for ind,val in enumerate(icontCSV)]
+    iNum = np.array(iNum)
+    iFname = {iNum[i]:icontCSV[i][1] for i in range(len(iNum))}
+    
+    oNum = [getNumFromContFname(val[1]) for ind,val in enumerate(ocontCSV)]
+    oNum = np.array(oNum)
+    oFname = {oNum[i]:ocontCSV[i][1] for i in range(len(oNum))}
+    oImg = {oNum[i]:ocontCSV[i][0] for i in range(len(oNum))}
+    
+    matchSet = (set(oNum).intersection(iNum))
+    matchSet = sorted(matchSet)
+
+    matchPaths = []
+    for i in matchSet:
+        matchPaths.append([i,oImg[i],iFname[i],oFname[i]])
+    return matchPaths
+
+def getDiceCoeff(trueSeg,predSeg):
+    #---binary masks for trueSeg and predSeg, returns the dice coefficient
+    inter = np.sum(trueSeg & predSeg)
+    union = np.sum(trueSeg)+np.sum(predSeg)
+    return 2.*inter/union

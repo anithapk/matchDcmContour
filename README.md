@@ -18,3 +18,19 @@ Added matchImgCont.py:
 matchDcmCont.ipynb: notebook for exploration and visualization of the fused images
 
 matchImgCont.py: python script that loops through pairs in link.csv given a base directory. Assumes a directory structure
+
+Phase 2:
+modified utils.py. Added two functions:
+
+\1) getMatchCont(icontCSV,ocontCSV) - given the fnames of i-contour and o-contour, find the intersection of the two and 
+returns the fnames of the image, i-contour and o-contour
+
+\2) getDiceCoeff(trueSeg,predSeg): calculates the dice coefficient given the true and predicted labels. The labels have to 
+boolean or uint8
+
+\3) anisoDiff.py: performs anisotropic diffusion filtering of images in 2D or 3D
+
+\4) morphsnakes.py: various level-set routines for 2D and 3D curve and surface evolution
+
+\5) segCountours.ipynb: notebook for exploration and visualization of the fused images for o-contours, performance of 
+thresholding and level-set based segmentation approaches
