@@ -7,7 +7,7 @@ Added matchImgCont.py:
 
 \2) createContMask(contFname,imSize): creates a boolean mask from the contour file and image size
 
-\3) getNumFromDcmFname(dcmFname) & getNumFromContFname(contFname): these are functions to extract the image number from the filenames. I separated this as a function as it'll be easier to modify in the format of filename changes in the future
+\3) getNumFromDcmFname(dcmFname) & getNumFromContFname(contFname): these are functions to extract the image number from the filenames. I separated this as a function as it'll be easier to modify if the format of filename changes in the future
 
 \4) genTrainPair(dcmDir,conDir,opFname): main function that takes dicom image and contour directory and creates a list with the pairs.
 
